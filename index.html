@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="优品商城 - 品质生活，从这里开始" />
+  <meta name="theme-color" content="#e4393c" />
+  <title>优品商城 - 首页</title>
+  <link rel="stylesheet" href="./src/style.css" />
+  <style>
+    /* Loading state */
+    #app-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+    }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e8e8e8;
+      border-top-color: #e4393c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loading-text {
+      margin-top: 16px;
+      color: #999;
+      font-size: 14px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="app-loading">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">加载中...</p>
+    </div>
+  </div>
+
+  <!-- Vue 3 ESM from CDN -->
+  <script type="importmap">
+  {
+    "imports": {
+      "vue": "https://unpkg.com/vue@3.4.38/dist/vue.esm-browser.prod.js"
+    }
+  }
+  </script>
+
+  <!-- Vue 3 SFC Loader for loading .vue files in the browser -->
+  <script src="https://unpkg.com/vue3-sfc-loader@0.9.5/dist/vue3-sfc-loader.js"></script>
+  <script type="module">
+    import * as Vue from 'vue';
+
+    const { loadModule } = window['vue3-sfc-loader'];
+
+    const options = {
+      moduleCache: {
+        vue: Vue
+      },
+      async getFile(url) {
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
+        }
+        return {
+          getContentData: (asBinary) => asBinary ? res.arrayBuffer() : res.text(),
+          type: '.vue'
+        };
+      },
+      addStyle(textContent) {
+        const style = document.createElement('style');
+        style.textContent = textContent;
+        document.head.appendChild(style);
+      }
+    };
+
+    loadModule('./src/App.vue?t=' + Date.now(), options)
+      .then((component) => {
+        const app = Vue.createApp(component);
+        app.mount('#app');
+      })
+      .catch((err) => {
+        console.error('Failed to load App.vue:', err);
+        document.getElementById('app-loading').innerHTML = '<p style="color:#e4393c">加载失败，请刷新重试</p>';
+      });
+  </script>
+</body>
+</html>
